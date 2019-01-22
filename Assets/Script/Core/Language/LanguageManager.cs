@@ -6,15 +6,15 @@ using System;
 
 public class LanguageManager
 {
-    public const string c_configFileName     = "LanguageConfig";
-    public const string c_defaultModuleKey   = "default";
+    public const string c_configFileName = "LanguageConfig";
+    public const string c_defaultModuleKey = "default";
 
     public const string c_DataFilePrefix = "LangData_";
-    public const string c_mainKey  = "key";
+    public const string c_mainKey = "key";
     public const string c_valueKey = "value";
 
     static public SystemLanguage s_currentLanguage = SystemLanguage.ChineseSimplified; //当前语言
-    static public Dictionary<string,Dictionary<string,string>> s_languageDataDict = new Dictionary<string, Dictionary<string,string>>();//所有语言数据
+    static public Dictionary<string, Dictionary<string, string>> s_languageDataDict = new Dictionary<string, Dictionary<string, string>>();//所有语言数据
 
     private static LanguageSettingConfig config;
     static private bool isInit = false;
@@ -78,7 +78,7 @@ public class LanguageManager
         return GetContent(c_defaultModuleKey, contentID, contentParams);
     }
 
-    public static string GetContent(string moduleName,string contentID, List<object> contentParams)
+    public static string GetContent(string moduleName, string contentID, List<object> contentParams)
     {
         return GetContent(moduleName, contentID, contentParams.ToArray());
     }
@@ -154,9 +154,9 @@ public class LanguageManager
     public static string GetContent(string moduleName, string contentID, params object[] contentParams)
     {
         string fullkey = moduleName.Replace('_', '/') + "/" + contentID;
-        return GetContentByKey(fullkey,contentParams);
+        return GetContentByKey(fullkey, contentParams);
     }
-    
+
 
     public static string GetLanguageDataName(SystemLanguage langeuageName, string fullkeyFileName)
     {
@@ -168,6 +168,11 @@ public class LanguageManager
     {
         s_languageDataDict.Clear();
         isInit = false;
+    }
+
+    public static bool HaveKey(string k)
+    {
+        return false;
     }
 }
 

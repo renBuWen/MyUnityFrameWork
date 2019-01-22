@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class testWindow : UIWindowBase 
+public class testWindow : UIWindowBase
 {
 
     //UI的初始化请放在这里
@@ -13,7 +13,9 @@ public class testWindow : UIWindowBase
         AddOnClickListener("Button_open", open);
         AddOnClickListener("Button_close", close);
 
-        GetReusingScrollRect("ScrollRect").Init(UIEventKey,"Image_item");
+        // Hack :传参不对!
+        //GetReusingScrollRect("ScrollRect").Init(UIEventKey,"Image_item");
+        GetReusingScrollRect("ScrollRect").Init(UIEventKey, 001);
 
         List<Dictionary<string, object>> data = new List<Dictionary<string, object>>();
 
@@ -33,10 +35,10 @@ public class testWindow : UIWindowBase
     //UI的进入动画
     public override IEnumerator EnterAnim(UIAnimCallBack l_animComplete, UICallBack l_callBack, params object[] objs)
     {
-        AnimSystem.UguiAlpha(gameObject, 0, 1, 1, callBack:(object[] obj)=>
-        {
-            base.EnterAnim(l_animComplete, l_callBack, objs);
-        });
+        AnimSystem.UguiAlpha(gameObject, 0, 1, 1, callBack: (object[] obj) =>
+         {
+             base.EnterAnim(l_animComplete, l_callBack, objs);
+         });
 
         yield break;
     }

@@ -7,10 +7,10 @@ using UnityEngine;
 
 public class LanguageDataEditorUtils
 {
-   
+
 
     #region 加载/保存编辑器设置
- 
+
     public static void SaveData(SystemLanguage langeuageName, string fullkeyFileName, DataTable data)
     {
         if (data == null)
@@ -22,7 +22,7 @@ public class LanguageDataEditorUtils
         FileUtils.CreateTextFile(path, text);
         UnityEditor.AssetDatabase.Refresh();
     }
-  
+
     /// <summary>
     /// 加载所有某种语言的所有多语言文件，并转换成带"/"路径的数据
     /// </summary>
@@ -60,6 +60,13 @@ public class LanguageDataEditorUtils
             }
         }
         return list;
+    }
+
+    public static List<string> GetLanguageLayersKeyList()
+    {
+        List<string> list_strs = new List<string>();
+        list_strs.Add("作者竟然没有定义这样的方法，但是却用到了");
+        return list_strs;
     }
 }
 

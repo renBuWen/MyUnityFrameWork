@@ -12,7 +12,7 @@ public static class ResourcesConfigManager
     static DataTable s_config;
     static bool s_isInit = false;
 
-    static void Initialize()
+    public static void Initialize()
     {
         s_isInit = true;
         LoadResourceConfig();
@@ -44,7 +44,7 @@ public static class ResourcesConfigManager
             Initialize();
         }
 
-        if(!s_config.ContainsKey(bundleName))
+        if (!s_config.ContainsKey(bundleName))
         {
             throw new Exception("RecourcesConfigManager can't find ->" + bundleName + "<-");
         }
@@ -111,7 +111,7 @@ public static class ResourcesConfigManager
     public static void CreateResourcesConfig()
     {
         string content = DataTable.Serialize(GenerateResourcesConfig());
-        string path = PathTool.GetAbsolutePath(ResLoadLocation.Resource,c_ManifestFileName + "." + DataManager.c_expandName);
+        string path = PathTool.GetAbsolutePath(ResLoadLocation.Resource, c_ManifestFileName + "." + DataManager.c_expandName);
 
         ResourceIOTool.WriteStringByFile(path, content);
     }
@@ -139,7 +139,7 @@ public static class ResourcesConfigManager
         return data;
     }
 
-    static void RecursionAddResouces(DataTable data,string path)
+    static void RecursionAddResouces(DataTable data, string path)
     {
         if (!File.Exists(path))
         {
@@ -150,7 +150,7 @@ public static class ResourcesConfigManager
 
         for (int i = 0; i < dires.Length; i++)
         {
-            RecursionAddResouces(data,dires[i]);
+            RecursionAddResouces(data, dires[i]);
         }
 
         string[] files = Directory.GetFiles(path);
@@ -163,13 +163,13 @@ public static class ResourcesConfigManager
                 continue;
             else
             {
-                relativePath = FileTool.RemoveExpandName(relativePath).Replace("\\","/");
+                relativePath = FileTool.RemoveExpandName(relativePath).Replace("\\", "/");
 
                 SingleData sd = new SingleData();
                 sd.Add(c_MainKey, fileName.ToLower());
                 sd.Add(c_PathKey, relativePath.ToLower());
 
-                if(!data.ContainsKey(fileName.ToLower()))
+                if (!data.ContainsKey(fileName.ToLower()))
                 {
                     data.AddData(sd);
                 }
