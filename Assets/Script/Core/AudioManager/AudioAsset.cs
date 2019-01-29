@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
 public enum AudioPlayState
 {
@@ -24,6 +22,7 @@ public class AudioAsset
     public string flag = "";
     public string assetName = "";
     private float totleVolume = 1;
+
     /// <summary>
     /// 总音量
     /// </summary>
@@ -41,6 +40,7 @@ public class AudioAsset
             Volume = TotleVolume * volumeScale;
         }
     }
+
     /// <summary>
     /// 当前AudioSource 实际音量
     /// </summary>
@@ -135,39 +135,39 @@ public class AudioAsset
     }
 }
 
-    public class VolumeFadeData
-    {
-        public AudioAsset au;
-        public float fadeTime;
-        /// <summary>
-        /// 记录临时音量
-        /// </summary>
-        public float tempVolume;
-        /// <summary>
-        /// 延迟播放music
-        /// </summary>
-        public float delayTime;
-        public VolumeFadeType fadeType;
-        public VolumeFadeStateType fadeState;
-        public CallBack<AudioAsset> fadeCompleteCallBack;
-        /// <summary>
-        /// 用于VolumeFadeType.FadeOut2In 当fade out完成时回调
-        /// </summary>
-        public CallBack<AudioAsset> fadeOutCompleteCallBack;
-    }
+public class VolumeFadeData
+{
+    public AudioAsset au;
+    public float fadeTime;
+    /// <summary>
+    /// 记录临时音量
+    /// </summary>
+    public float tempVolume;
+    /// <summary>
+    /// 延迟播放music
+    /// </summary>
+    public float delayTime;
+    public VolumeFadeType fadeType;
+    public VolumeFadeStateType fadeState;
+    public CallBack<AudioAsset> fadeCompleteCallBack;
+    /// <summary>
+    /// 用于VolumeFadeType.FadeOut2In 当fade out完成时回调
+    /// </summary>
+    public CallBack<AudioAsset> fadeOutCompleteCallBack;
+}
 
-    public enum VolumeFadeType
-    {
-        FadeIn,
-        FadeOut,
-        FadeOut2In,
-    }
-    public enum VolumeFadeStateType
-    {
-        FadeIn,
-        FadeOut,
-        Delay,
-        Complete,
-    }
+public enum VolumeFadeType
+{
+    FadeIn,
+    FadeOut,
+    FadeOut2In,
+}
+public enum VolumeFadeStateType
+{
+    FadeIn,
+    FadeOut,
+    Delay,
+    Complete,
+}
 
 

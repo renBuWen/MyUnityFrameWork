@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
 
 public class TimerEvent
@@ -9,7 +8,7 @@ public class TimerEvent
     /// <summary>
     /// 重复调用次数,-1代表一直调用
     /// </summary>
-    public int m_repeatCount   = 0;
+    public int m_repeatCount = 0;
     public int m_currentRepeat = 0;
 
     /// <summary>
@@ -46,8 +45,8 @@ public class TimerEvent
     public void CompleteTimer()
     {
         CallBackTimer();
-        
-        if(m_repeatCount > 0)
+
+        if (m_repeatCount > 0)
         {
             m_currentRepeat++;
         }
@@ -61,7 +60,7 @@ public class TimerEvent
 
     public void CallBackTimer()
     {
-        if(this == Timer.test)
+        if (this == Timer.test)
         {
             Debug.Log("CallBackTimer " + (m_callBack == null));
         }

@@ -2,10 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Timer 
+public class Timer
 {
     public static List<TimerEvent> m_timers = new List<TimerEvent>();
-
     public static TimerEvent test;
 
     //public static List<TimerEvent> m_removeList = new List<TimerEvent>();
@@ -15,17 +14,15 @@ public class Timer
         ApplicationManager.s_OnApplicationUpdate += Update;
     }
 
-	static void Update () 
+    static void Update()
     {
-        for (int i = 0; i < m_timers.Count;i++ )
+        for (int i = 0; i < m_timers.Count; i++)
         {
             TimerEvent e = m_timers[i];
             e.Update();
-
             if (e.m_isDone)
             {
                 e.CompleteTimer();
-
                 if (e.m_isDone)
                 {
                     m_timers.Remove(e);
@@ -33,9 +30,9 @@ public class Timer
             }
         }
 
-        if(test != null)
+        if (test != null)
         {
-            Debug.Log("Test " + test.m_timerName + " " + test.m_currentTimer + " " + m_timers.Contains(test) + " isDone " + test.m_isDone); 
+            Debug.Log("Test " + test.m_timerName + " " + test.m_currentTimer + " " + m_timers.Contains(test) + " isDone " + test.m_isDone);
         }
     }
 
@@ -49,7 +46,6 @@ public class Timer
                 return true;
             }
         }
-
         return false;
     }
 
@@ -74,9 +70,9 @@ public class Timer
     /// <param name="callBack">回调函数</param>
     /// <param name="objs">回调函数的参数</param>
     /// <returns></returns>
-    public static TimerEvent DelayCallBack(float delayTime,TimerCallBack callBack,params object[] objs)
+    public static TimerEvent DelayCallBack(float delayTime, TimerCallBack callBack, params object[] objs)
     {
-        return AddTimer(delayTime, false, 0, null, callBack, objs); 
+        return AddTimer(delayTime, false, 0, null, callBack, objs);
     }
 
     /// <summary>
@@ -99,9 +95,9 @@ public class Timer
     /// <param name="callBack">回调函数</param>
     /// <param name="objs">回调函数的参数</param>
     /// <returns></returns>
-    public static TimerEvent CallBackOfIntervalTimer(float spaceTime,TimerCallBack callBack, params object[] objs)
+    public static TimerEvent CallBackOfIntervalTimer(float spaceTime, TimerCallBack callBack, params object[] objs)
     {
-        return AddTimer(spaceTime, false, -1, null, callBack, objs); 
+        return AddTimer(spaceTime, false, -1, null, callBack, objs);
     }
 
     /// <summary>
@@ -126,7 +122,7 @@ public class Timer
     /// <param name="callBack">回调函数</param>
     /// <param name="objs">回调函数的参数</param>
     /// <returns></returns>
-    public static TimerEvent CallBackOfIntervalTimer(float spaceTime, bool isIgnoreTimeScale, string timerName,TimerCallBack callBack, params object[] objs)
+    public static TimerEvent CallBackOfIntervalTimer(float spaceTime, bool isIgnoreTimeScale, string timerName, TimerCallBack callBack, params object[] objs)
     {
         return AddTimer(spaceTime, isIgnoreTimeScale, -1, timerName, callBack, objs);
     }
@@ -155,7 +151,7 @@ public class Timer
     /// <returns></returns>
     public static TimerEvent CallBackOfIntervalTimer(float spaceTime, bool isIgnoreTimeScale, int callBackCount, TimerCallBack callBack, params object[] objs)
     {
-        return AddTimer(spaceTime, isIgnoreTimeScale, callBackCount, null,callBack, objs); ;
+        return AddTimer(spaceTime, isIgnoreTimeScale, callBackCount, null, callBack, objs); ;
     }
 
     /// <summary>
@@ -183,7 +179,7 @@ public class Timer
     /// <param name="callBack">回调函数</param>
     /// <param name="objs">回调函数的参数</param>
     /// <returns></returns>
-    public static TimerEvent AddTimer(float spaceTime, bool isIgnoreTimeScale, int callBackCount, string timerName,TimerCallBack callBack, params object[] objs)
+    public static TimerEvent AddTimer(float spaceTime, bool isIgnoreTimeScale, int callBackCount, string timerName, TimerCallBack callBack, params object[] objs)
     {
         TimerEvent te = new TimerEvent();
 
@@ -202,7 +198,7 @@ public class Timer
         return te;
     }
 
-    public static void DestroyTimer(TimerEvent timer,bool isCallBack = false)
+    public static void DestroyTimer(TimerEvent timer, bool isCallBack = false)
     {
         //Debug.Log("DestroyTimer " + timer.m_timerName + " isTest " + (timer == test));
 
@@ -224,7 +220,7 @@ public class Timer
     public static void DestroyTimer(string timerName, bool isCallBack = false)
     {
         //Debug.Log("DestroyTimer2  ----TIMER " + timerName);
-        for (int i = 0; i < m_timers.Count;i++ )
+        for (int i = 0; i < m_timers.Count; i++)
         {
             TimerEvent te = m_timers[i];
             if (te.m_timerName.Equals(timerName))
@@ -249,13 +245,13 @@ public class Timer
 
     public static void ResetTimer(TimerEvent timer)
     {
-        if(m_timers.Contains(timer))
+        if (m_timers.Contains(timer))
         {
             timer.ResetTimer();
         }
         else
         {
-            Debug.LogError("Timer ResetTimer error: dont exist timer "+ timer);
+            Debug.LogError("Timer ResetTimer error: dont exist timer " + timer);
         }
     }
 

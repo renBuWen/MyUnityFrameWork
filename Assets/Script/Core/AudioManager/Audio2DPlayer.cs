@@ -37,7 +37,7 @@ public class Audio2DPlayer : AudioPlayerBase
         }
         else
         {
-            au = CreateAudioAssetByPool(mono.gameObject, false,  AudioSourceType.Music);
+            au = CreateAudioAssetByPool(mono.gameObject, false, AudioSourceType.Music);
             bgMusicDic.Add(channel, au);
         }
 
@@ -90,11 +90,11 @@ public class Audio2DPlayer : AudioPlayerBase
         {
             if (isPause)
             {
-                    sfxList[i].Pause();
+                sfxList[i].Pause();
             }
             else
             {
-                    sfxList[i].Play();
+                sfxList[i].Play();
             }
         }
     }
@@ -104,7 +104,7 @@ public class Audio2DPlayer : AudioPlayerBase
         AudioAsset au = null;
         if (au == null)
         {
-            au = CreateAudioAssetByPool(mono.gameObject, false,  AudioSourceType.SFX);
+            au = CreateAudioAssetByPool(mono.gameObject, false, AudioSourceType.SFX);
             sfxList.Add(au);
         }
         return au;
