@@ -1,3 +1,4 @@
+#if USE_LUA
 using LuaInterface;
 using UnityEditor;
 using System;
@@ -29,6 +30,8 @@ public class LuaExportList
         _GT(typeof(Vector4)),
         _GT(typeof(Vector2)),
         _GT(typeof(Color)),
+
+        _GT(typeof(Debug)),
     #endregion
 
     #region UGUI
@@ -83,7 +86,7 @@ public class LuaExportList
             _GT(typeof(DataManager)),
             _GT(typeof(ConfigManager)),
             _GT(typeof(RecordManager)),
-            _GT(typeof(AudioManager)),
+            _GT(typeof(AudioPlayManager)),
 
         #endregion
 
@@ -226,3 +229,4 @@ public class LuaExportList
         return new DelegateType(t);
     }
 }
+#endif

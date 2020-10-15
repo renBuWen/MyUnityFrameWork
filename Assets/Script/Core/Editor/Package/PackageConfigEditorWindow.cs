@@ -129,17 +129,21 @@ public class BundleConfigEditorWindow : EditorWindow
             CheckPackage();
         }
 
-        if (GUILayout.Button("生成MD5"))
-        {
-            CheckAndCreatBundelPackageConfig(); //生成资源路径文件
-        }
-
-        if (GUILayout.Button("保存游戏资源路径文件"))
+        if (GUILayout.Button("生成并保存编辑器文件"))
         {
             CreatePackageFile(); //保存编辑器文件
             CheckAndCreatBundelPackageConfig(); //生成资源路径文件
         }
 
+        if (GUILayout.Button("重新生成资源路径文件"))
+        {
+            ResourcesConfigManager.CreateResourcesConfig();
+        }
+        if(GUILayout.Button("Create Bundle Names"))
+        {
+            //自动设置打包信息
+            SetAssetsInfo();
+        }
         if (GUILayout.Button("5.0 打包"))
         {
             NewPackage();
@@ -401,6 +405,8 @@ public class BundleConfigEditorWindow : EditorWindow
 
         CreatePackageFile();                 //保存编辑器文件
         CheckAndCreatBundelPackageConfig(); //生成资源路径文件
+
+        ResourcesConfigManager.CreateResourcesConfig(); //生成游戏用路径文件
 
         ResourcesConfigManager.ClearConfig();
     }
@@ -963,14 +969,7 @@ public class BundleConfigEditorWindow : EditorWindow
 
     #region 添加菜单按钮
 
-    [MenuItem("Tool/显示选中对象所有相关资源")]
-    public static void ShowAllCorrelationResource()
-    {
-        Object[] roots = Selection.GetFiltered(typeof(Object), SelectionMode.Unfiltered);
-        Selection.objects = EditorUtility.CollectDependencies(roots);
-    }
-
-    [MenuItem("Window/打包设置编辑器 &1")]
+    [MenuItem("Window/打包设置编辑器 &9")]
 
     public static void ShowWindow()
     {
@@ -1570,6 +1569,10 @@ public class BundleConfigEditorWindow : EditorWindow
         if (Directory.Exists(Application.dataPath + "/StreamingAssets"))
         {
             FileTool.DeleteDirectory(Application.dataPath + "/StreamingAssets");
+        }
+        else
+        {
+            FileTool.CreatPath(Application.dataPath + "/StreamingAssets");
         }
 
         BuildPipeline.BuildAssetBundles(Application.dataPath + "/StreamingAssets/", BuildAssetBundleOptions.None, PackageService.GetTargetPlatform);

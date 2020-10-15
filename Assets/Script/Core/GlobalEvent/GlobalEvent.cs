@@ -50,6 +50,11 @@ public class GlobalEvent
         }
     }
 
+    internal static void AddTypeEvent<T>(string v)
+    {
+        throw new NotImplementedException();
+    }
+
     /// <summary>
     /// 移除某类事件的一个回调
     /// </summary>
@@ -187,6 +192,11 @@ public class GlobalEvent
                 m_stringEventDic.Add(eventKey, temp);
             }
         }
+    }
+
+    internal static void AddEvent<T>(object onRequestRealNameResult)
+    {
+        throw new NotImplementedException();
     }
 
     /// <summary>

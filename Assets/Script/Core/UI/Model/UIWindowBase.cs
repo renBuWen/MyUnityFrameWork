@@ -8,11 +8,13 @@ public class UIWindowBase : UIBase
     [HideInInspector]
     public string cameraKey;
     public UIType m_UIType;
-
+    [HideInInspector]
     public WindowStatus windowStatus;
 
     public GameObject m_bgMask;
     public GameObject m_uiRoot;
+
+    public float m_PosZ; //Z轴偏移
 
     #region 重载方法
 

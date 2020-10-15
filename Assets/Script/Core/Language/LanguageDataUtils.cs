@@ -1,5 +1,4 @@
-﻿using HDJ.Framework.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,20 +7,55 @@ using UnityEngine;
 public class LanguageDataUtils
 {
     public const string SavePathDir = "Assets/Resources/Data/Language/";
-    public static LanguageSettingConfig LoadEditorConfig()
+    //public static LanguageSettingConfig LoadEditorConfig()
+    //{
+
+    //    if(ResourcesConfigManager.GetIsExitRes(LanguageManager.c_configFileName))
+    //    {
+    //        LanguageSettingConfig config;
+
+    //        string json = ResourceManager.Load<TextAsset>(LanguageManager.c_configFileName).text; 
+
+    //        if (!string.IsNullOrEmpty(json))
+    //            config = JsonUtils.FromJson<LanguageSettingConfig>(json);
+    //        else
+    //        {
+    //            config = null;
+
+    //            //config.defaultLanguage = SystemLanguage.ChineseSimplified;
+    //            //config.gameExistLanguages.Add(SystemLanguage.ChineseSimplified);
+    //        }
+    //        return config;
+    //    }
+    //    else
+    //    {
+    //        return null;
+    //    }
+    //}
+    public static LanguageSettingConfig LoadRuntimeConfig()
     {
-        LanguageSettingConfig config;
-        string json = FileUtils.LoadTextFileByPath(SavePathDir + LanguageManager.c_configFileName + ".txt");
-        if (!string.IsNullOrEmpty(json))
-            config = JsonUtils.FromJson<LanguageSettingConfig>(json);
+
+        if (ResourcesConfigManager.GetIsExitRes(LanguageManager.c_configFileName))
+        {
+            LanguageSettingConfig config;
+
+            string json = ResourceManager.LoadText(LanguageManager.c_configFileName);
+            ResourceManager.DestoryAssetsCounter(LanguageManager.c_configFileName);
+            if (!string.IsNullOrEmpty(json))
+                config = JsonUtils.FromJson<LanguageSettingConfig>(json);
+            else
+            {
+                config = null;
+
+                //config.defaultLanguage = SystemLanguage.ChineseSimplified;
+                //config.gameExistLanguages.Add(SystemLanguage.ChineseSimplified);
+            }
+            return config;
+        }
         else
         {
-            config = new LanguageSettingConfig();
-
-            //config.defaultLanguage = SystemLanguage.ChineseSimplified;
-            //config.gameExistLanguages.Add(SystemLanguage.ChineseSimplified);
+            return null;
         }
-        return config;
     }
     public static void SaveEditorConfig(LanguageSettingConfig config)
     {

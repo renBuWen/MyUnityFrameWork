@@ -5,8 +5,8 @@ using System.Reflection;
 using UnityEditor;
 using System.IO;
 using System.Collections.Generic;
-using HDJ.Framework.Utils;
 using System.Net;
+using UnityEditor.Animations;
 
 public class EditorDrawGUIUtil
 {
@@ -103,7 +103,7 @@ public class EditorDrawGUIUtil
             return data;
 
         Type type = data.GetType();
-        content.text = richTextSupport ? GetFormatName(content.text, type, "yellow", data) : GetFormatName(content.text, type, "", data);
+        content.text = richTextSupport ? GetFormatName(content.text, type, "green", data) : GetFormatName(content.text, type, "", data);
 
         object obj = data;
         if (CanEdit)
@@ -142,10 +142,16 @@ public class EditorDrawGUIUtil
                 obj = EditorGUILayout.TextArea(data.ToString(), style, GUILayout.MaxWidth(Screen.width / 2));
                 GUILayout.EndHorizontal();
             }
-            else if (type.BaseType.FullName == typeof(UnityEngine.Object).FullName || type.BaseType.FullName == typeof(Component).FullName || type.BaseType.FullName == typeof(MonoBehaviour).FullName)
+            else if (type == typeof(AnimationClip) ||
+                type == typeof(Texture2D) ||
+                type == typeof(Texture) ||
+                type == typeof(Sprite) ||
+                type == typeof(AnimatorController) ||
+                type.BaseType == typeof(UnityEngine.Object) || type.BaseType == typeof(Component) || type.BaseType == typeof(MonoBehaviour))
             {
                 obj = EditorGUILayout.ObjectField(content, (UnityEngine.Object)data, type, true);
             }
+
             else if (type.BaseType == typeof(Enum))
             {
                 obj = EditorGUILayout.EnumPopup(content, (Enum)Enum.Parse(type, data.ToString()));
@@ -219,7 +225,15 @@ public class EditorDrawGUIUtil
                 DrawLableString(content, showStr);
 
             }
-            else if (type.BaseType == typeof(UnityEngine.Object) || type.BaseType == typeof(Component) || type.BaseType == typeof(MonoBehaviour))
+            else if (
+                type == typeof(AnimationClip) ||
+                type == typeof(Texture2D) ||
+                type == typeof(Texture) ||
+                type == typeof(Sprite) ||
+                type == typeof(AnimatorController) ||
+                type.BaseType == typeof(UnityEngine.Object) ||
+                type.BaseType == typeof(Component) ||
+                type.BaseType == typeof(MonoBehaviour))
             {
                 EditorGUILayout.ObjectField(content, (UnityEngine.Object)data, type, true);
             }
@@ -455,14 +469,16 @@ public class EditorDrawGUIUtil
     /// <summary>
     /// 绘制弹出菜单
     /// </summary>
+    /// <typeparam name="T"></typeparam>
     /// <param name="name"></param>
     /// <param name="selectedStr"></param>
     /// <param name="displayedOptions"></param>
     /// <param name="selectChangeCallBack"></param>
+    /// <param name="customShowItemTextCallBack">自定义显示的Item的选项内容</param>
     /// <returns></returns>
-    public static T DrawPopup<T>(string name, T selectedStr, List<T> displayedOptions, CallBack<T> selectChangeCallBack = null)
+    public static T DrawPopup<T>(string name, T selectedStr, List<T> displayedOptions, CallBack<T> selectChangeCallBack = null, CallBackR<string, T> customShowItemTextCallBack = null)
     {
-        if (displayedOptions==null || (displayedOptions.Count == 0))
+        if (displayedOptions == null || (displayedOptions.Count == 0))
             return default(T);
 
         int selectedIndex = -1;
@@ -478,11 +494,16 @@ public class EditorDrawGUIUtil
         List<string> tempListStr = new List<string>();
         foreach (var item in displayedOptions)
         {
-            tempListStr.Add(item.ToString());
+            if (customShowItemTextCallBack != null)
+            {
+                tempListStr.Add(customShowItemTextCallBack(item));
+            }
+            else
+                tempListStr.Add(item.ToString());
         }
         selectedIndex = EditorGUILayout.Popup(name, selectedIndex, tempListStr.ToArray(), style);
 
-         selectedStr = displayedOptions[selectedIndex];
+        selectedStr = displayedOptions[selectedIndex];
         if (selectedIndex != recode)
         {
             if (selectChangeCallBack != null)
@@ -550,7 +571,7 @@ public class EditorDrawGUIUtil
     /// <param name="customDrawItem">自定义绘制Item</param>
     /// <param name="itemTitleName">自定义绘制Itemm名称 当customDrawItem==null时起作用</param>
     /// <returns></returns>
-    public static object DrawList(GUIContent name, object data, CallBackR<object> addCustomData = null, CallBack<bool, object> ItemChnageCallBack = null, CallBackR<object, object> customDrawItem = null,CallBackR<string,object> itemTitleName=null)
+    public static object DrawList(GUIContent name, object data, CallBackR<object> addCustomData = null, CallBack<bool, object> ItemChnageCallBack = null, CallBackR<object, object> customDrawItem = null, CallBackR<string, object> itemTitleName = null)
     {
         if (data == null)
         {
@@ -610,7 +631,7 @@ public class EditorDrawGUIUtil
                 {
                     string itemTitle = "" + i;
                     if (itemTitleName != null)
-                        itemTitle=itemTitleName(da);
+                        itemTitle = itemTitleName(da);
 
                     da = DrawBaseValue(itemTitle, da);
                 }
@@ -658,7 +679,7 @@ public class EditorDrawGUIUtil
     /// <param name="ItemChnageCallBack">当Item添加或删除时回调</param>
     /// <param name="customDrawItem">自定义绘制Item</param>
     /// <returns></returns>
-    public static int DrawPage(GUIContent name,int index, object data, CallBackR<object> addCustomData = null, CallBack<bool, object> ItemChnageCallBack = null, CallBackR<object, object> customDrawItem = null)
+    public static int DrawPage(GUIContent name, int index, object data, CallBackR<object> addCustomData = null, CallBack<bool, object> ItemChnageCallBack = null, CallBackR<object, object> customDrawItem = null)
     {
         if (data == null)
         {
@@ -682,17 +703,17 @@ public class EditorDrawGUIUtil
         GUILayout.BeginHorizontal();
         GUILayout.Label(name);
         GUILayout.FlexibleSpace();
-        if (GUILayout.Button("<",GUILayout.Width(60)))
+        if (GUILayout.Button("<", GUILayout.Width(60)))
         {
             index--;
-           
+
         }
         index = EditorGUILayout.IntField(index, GUILayout.Width(40));
         GUILayout.Label(index + "/" + (count - 1));
         if (GUILayout.Button(">", GUILayout.Width(60)))
         {
             index++;
-            
+
         }
         GUILayout.FlexibleSpace();
 
@@ -726,45 +747,45 @@ public class EditorDrawGUIUtil
             GUILayout.BeginVertical("box");
 
             int i = index;
-                object da = methodInfo.Invoke(data, new object[] { i });
-                GUILayout.BeginHorizontal();
-                GUILayout.BeginVertical();
-                if (customDrawItem != null)
+            object da = methodInfo.Invoke(data, new object[] { i });
+            GUILayout.BeginHorizontal();
+            GUILayout.BeginVertical();
+            if (customDrawItem != null)
+            {
+                da = customDrawItem(da);
+            }
+            else
+            {
+                da = DrawBaseValue("" + i, da);
+            }
+            GUILayout.EndVertical();
+            methodInfo1.Invoke(data, new object[] { i, da });
+            if (CanEdit && GUILayout.Button("↑", GUILayout.Width(15)))
+            {
+                if (i != 0)
                 {
-                    da = customDrawItem(da);
+                    methodInfo4.Invoke(data, new object[] { i - 1, 2 });
                 }
-                else
-                {
-                    da = DrawBaseValue("" + i, da);
-                }
-                GUILayout.EndVertical();
-                methodInfo1.Invoke(data, new object[] { i, da });
-                if (CanEdit && GUILayout.Button("↑", GUILayout.Width(15)))
-                {
-                    if (i != 0)
-                    {
-                        methodInfo4.Invoke(data, new object[] { i - 1, 2 });
-                    }
-                   
-                }
-                if (CanEdit && GUILayout.Button("↓", GUILayout.Width(15)))
-                {
-                    if (i != (count - 1))
-                    {
-                        methodInfo4.Invoke(data, new object[] { i, 2 });
-                    }
-                  
-                }
-                if (CanEdit && GUILayout.Button("-", GUILayout.Width(30)))
-                {
-                    methodInfo2.Invoke(data, new object[] { i });
-                    if (ItemChnageCallBack != null)
-                        ItemChnageCallBack(false, da);
-                   
-                }
-                GUILayout.EndHorizontal();
 
-            
+            }
+            if (CanEdit && GUILayout.Button("↓", GUILayout.Width(15)))
+            {
+                if (i != (count - 1))
+                {
+                    methodInfo4.Invoke(data, new object[] { i, 2 });
+                }
+
+            }
+            if (CanEdit && GUILayout.Button("-", GUILayout.Width(30)))
+            {
+                methodInfo2.Invoke(data, new object[] { i });
+                if (ItemChnageCallBack != null)
+                    ItemChnageCallBack(false, da);
+
+            }
+            GUILayout.EndHorizontal();
+
+
 
             GUILayout.EndVertical();
         }
@@ -913,12 +934,30 @@ public class EditorDrawGUIUtil
     /// <returns></returns>
     public static string DrawSearchField(string value, params GUILayoutOption[] options)
     {
+        return DrawSearchField(value,null,options);
+    }
+    /// <summary>
+    /// 绘制搜索框
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static string DrawSearchField(string value,CallBack valueChangeCallBack, params GUILayoutOption[] options)
+    {
+        string res = value;
         MethodInfo info = typeof(EditorGUILayout).GetMethod("ToolbarSearchField", BindingFlags.NonPublic | BindingFlags.Static, null, new System.Type[] { typeof(string), typeof(GUILayoutOption[]) }, null);
         if (info != null)
         {
-            value = (string)info.Invoke(null, new object[] { value, options });
+            res = (string)info.Invoke(null, new object[] { value, options });
+            if (res != value)
+            {
+                if (valueChangeCallBack != null)
+                {
+                    valueChangeCallBack();
+                }
+            }
         }
-        return value;
+        return res;
     }
     /// <summary>
     /// 根据Type 和name 组合显示数据类型描述 如 ： frame(List<int>)   Count:10
@@ -1026,8 +1065,10 @@ public class EditorDrawGUIUtil
         bool isFolder = EditorGUILayout.Foldout(EditorGUIState.GetState(taget), content);
         if (isFolder)
         {
+            EditorGUI.indentLevel += 1;
             if (drawGUI != null)
                 drawGUI();
+            EditorGUI.indentLevel -= 1;
         }
         EditorGUIState.SetState(taget, isFolder);
 
@@ -1196,7 +1237,7 @@ public class EditorDrawGUIUtil
         bool isShow = true;
         foreach (var att in attrs)
         {
-            if (att.GetType() == ReflectionUtils.GetTypeByTypeFullName("NoShowInEditorAttribute"))
+            if (att.GetType() == typeof(NoShowInEditorAttribute))
             {
                 isShow = false;
                 break;
@@ -1216,7 +1257,7 @@ public class EditorDrawGUIUtil
         foreach (var att in attrs)
         {
             Type t = att.GetType();
-            if (t == ReflectionUtils.GetTypeByTypeFullName("ShowGUINameAttribute"))
+            if (t == typeof(ShowGUINameAttribute))
             {
                 PropertyInfo p = t.GetProperty("Name");
                 object obj = p.GetValue(att, null);

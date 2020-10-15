@@ -1,0 +1,4 @@
+key	serverIP	description	port	androidVersion	iosVersion	channel	standaloneVersion
+type	String	String	Int	StringArray	StringArray	StringArray	StringArray[]
+note	服务器IP	描述	端口	支持前端Android的版本	支持的前端IOS的版本	包的渠道	包含Windows，mac，Linux
+default	0.0.0.0	描述	8000	null	null	GameCenter	null

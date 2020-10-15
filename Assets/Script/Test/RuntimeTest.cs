@@ -37,36 +37,36 @@ public class RuntimeTest : MonoBehaviour
             UIManager.CloseUIWindow("MianMenu");
         }
 
-        if (Input.GetKey(KeyCode.C))
-        {
-            AssetsBundleManager.UnLoadBundle("UItest");
-        }
+        //if (Input.GetKey(KeyCode.C))
+        //{
+        //    AssetsBundleManager.UnLoadBundle("UItest");
+        //}
 
         
 
-        if (Input.GetKey(KeyCode.D))
-        {
-            loadCount++;
-            ResourceManager.LoadAsync("UItest", (LoadState state, object obj) => 
-            {
-                if (state.isDone)
-                {
-                    callbackCount++;
-                    Debug.Log(state.progress);
-                    GameObject go = (GameObject)obj;
+        //if (Input.GetKey(KeyCode.D))
+        //{
+        //    loadCount++;
+        //    ResourceManager.LoadAsync("UItest", (LoadState state, object obj) => 
+        //    {
+        //        if (state.isDone)
+        //        {
+        //            callbackCount++;
+        //            Debug.Log(state.progress);
+        //            GameObject go = (GameObject)obj;
 
-                    Instantiate(go);
+        //            Instantiate(go);
 
-                    Debug.Log(loadCount+"  " + callbackCount);
-                }
-                else
-                {
-                    Debug.Log(state.progress);
-                }
-            });
-        }
+        //            Debug.Log(loadCount+"  " + callbackCount);
+        //        }
+        //        else
+        //        {
+        //            Debug.Log(state.progress);
+        //        }
+        //    });
+        //}
 	}
 
-    int loadCount = 0;
-    int callbackCount = 0;
+    //int loadCount = 0;
+    //int callbackCount = 0;
 }

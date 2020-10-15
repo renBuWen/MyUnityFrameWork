@@ -1,11 +1,14 @@
-﻿using UnityEngine;
+﻿
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine.UI;
+using System.Reflection;
 
 public class UIBase : MonoBehaviour , UILifeCycleInterface
 {
+    [HideInInspector]
     public Canvas m_canvas;
 
     #region 重载方法
@@ -75,8 +78,11 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
     {
         ClearGuideModel();
         RemoveAllListener();
+        CleanAnim();
         CleanItem();
         CleanModelShowCameraList();
+
+        ClearLoadSprite();
         try
         {
             OnUIDestroy();
@@ -96,6 +102,10 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
     //生成对象表，便于快速获取对象，并忽略层级
     void CreateObjectTable()
     {
+        if (m_objects == null)
+        {
+            m_objects = new Dictionary<string, GameObject>();
+        }
         m_objects.Clear();
 
         m_images.Clear();
@@ -137,7 +147,7 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
 
     Dictionary<string, UIBase> m_uiBases = new Dictionary<string, UIBase>();
 
-    Dictionary<string, GameObject> m_objects = new Dictionary<string, GameObject>();
+    Dictionary<string, GameObject> m_objects = null;
     Dictionary<string, Image> m_images = new Dictionary<string, Image>();
     Dictionary<string, Sprite> m_Sprites = new Dictionary<string, Sprite>();
     Dictionary<string, Text> m_texts = new Dictionary<string, Text>();
@@ -162,6 +172,30 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
         bool has = false;
         has = m_objects.ContainsKey(name);
         return has;
+    }
+
+    public bool GetHasGameObject(string name)
+    {
+        if (m_objects == null)
+        {
+            CreateObjectTable();
+        }
+
+        if (m_objects.ContainsKey(name))
+        {
+            GameObject go = m_objects[name];
+
+            if (go == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public GameObject GetGameObject(string name)
@@ -653,6 +687,13 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
         m_EndDragEvents.Add(info);
     }
 
+    public void AddOnDragListener(string compName, InputEventHandle<InputUIOnDragEvent> callback, string parm = null)
+    {
+        InputEventRegisterInfo<InputUIOnDragEvent> info = InputUIEventProxy.GetOnDragListener(GetDragComp(compName), UIEventKey, compName, parm, callback);
+        info.AddListener();
+        m_DragEvents.Add(info);
+    }
+
     public void AddEventListener(Enum EventEnum, EventHandle handle)
     {
         EventHandRegisterInfo info = new EventHandRegisterInfo();
@@ -722,38 +763,36 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
 
     #region 创建对象
 
-    List<UIBase> m_ChildList = new List<UIBase>();
+   protected List<UIBase> m_ChildList = new List<UIBase>();
     int m_childUIIndex = 0;
+    public UIBase CreateItem(string itemName, GameObject parent, bool isActive)
+    {
+        GameObject item = GameObjectManager.CreateGameObjectByPool(itemName, parent, isActive);
+        return SetItem(item);
+    }
     public UIBase CreateItem(string itemName, string prantName, bool isActive)
     {
-        GameObject item = GameObjectManager.CreateGameObjectByPool(itemName, GetGameObject(prantName), isActive);
-
-        item.transform.localScale = Vector3.one;
-        item.transform.localPosition = Vector3.zero;
-        UIBase UIItem = item.GetComponent<UIBase>();
-
-        if (UIItem == null)
-        {
-            throw new Exception("CreateItem Error : ->" + itemName + "<- don't have UIBase Component!");
-        }
-
-        UIItem.Init(UIEventKey,m_childUIIndex++);
-
-        m_ChildList.Add(UIItem);
-
-        return UIItem;
+        GameObject parent = GetGameObject(prantName);
+        return CreateItem(itemName,parent,isActive);
     }
     public UIBase CreateItem(GameObject itemObj, GameObject parent, bool isActive)
     {
         GameObject item = GameObjectManager.CreateGameObjectByPool(itemObj, parent, isActive);
-
+        return SetItem(item);
+    }
+    public UIBase CreateItem(string itemName, string prantName)
+    {
+        return CreateItem(itemName, prantName, true);
+    }
+    private UIBase SetItem(GameObject item)
+    {
         item.transform.localScale = Vector3.one;
         item.transform.localPosition = Vector3.zero;
         UIBase UIItem = item.GetComponent<UIBase>();
 
         if (UIItem == null)
         {
-            throw new Exception("CreateItem Error : ->" + itemObj.name + "<- don't have UIBase Component!");
+            throw new Exception("CreateItem Error : ->" + item.name + "<- don't have UIBase Component!");
         }
 
         UIItem.Init(UIEventKey, m_childUIIndex++);
@@ -763,13 +802,6 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
 
         return UIItem;
     }
-
-    public UIBase CreateItem(string itemName, string prantName)
-    {
-        return CreateItem(itemName, prantName, true);
-    }
-
-
     public void DestroyItem(UIBase item)
     {
         DestroyItem(item, true);
@@ -873,7 +905,14 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
 
     public void SetText(string TextID, string content)
     {
-        GetText(TextID).text = content.Replace("\\n", "\n");
+        if (string.IsNullOrEmpty(content))
+        {
+            GetText(TextID).text = content;
+        }
+        else
+        {
+            GetText(TextID).text = content.Replace("\\n", "\n");
+        }
     }
 
     public void SetImageColor(string ImageID, Color color)
@@ -907,11 +946,16 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
     /// 不再建议使用
     /// </summary>
     [Obsolete]
-    public void SetTextByLangeage(string textID, string contentID, params object[] objs)
+    public void SetTextByLanguage(string textID, string contentID, params object[] objs)
     {
         GetText(textID).text = LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, contentID, objs);
     }
 
+    void SetTextStyle(string textID, string work)
+    {
+
+    }
+    [Obsolete]
     public void SetTextByLangeage(string textID, string moduleName, string contentID, params object[] objs)
     {
         GetText(textID).text = LanguageManager.GetContent(moduleName, contentID, objs);
@@ -982,6 +1026,48 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
 
     #endregion
 
+    #region 动态加载Sprite赋值
+    private Dictionary<string, int> loadSpriteNames = new Dictionary<string, int>();
+    public void SetImageSprite(string imgName, string name, bool is_nativesize = false)
+    {
+        Image img = GetImage(imgName);
+        SetImageSprite(img, name, is_nativesize);
+    }
+
+    public void SetImageSprite(Image img, string name, bool is_nativesize = false)
+    {
+        if(ResourcesConfigManager.GetIsExitRes(name))
+        {
+            UGUITool.SetImageSprite(img, name, is_nativesize);
+            if (!loadSpriteNames.ContainsKey(name))
+                loadSpriteNames.Add(name, 1);
+            else
+                loadSpriteNames[name]++;
+            //if (name == "CLT_border_TagBg_Hunter")
+            //    Debug.Log("UIBase 加载图片：" + name + " ==>" + loadSpriteNames[name]);
+        }
+        else
+        {
+            Debug.LogError("SetImageSprite 资源不存在! ->" + name + "<-");
+        }
+    }
+
+    private void ClearLoadSprite()
+    {
+        //Debug.Log("===>> ClearLoadSprite");
+        foreach (var item in loadSpriteNames)
+        {
+            int num = item.Value;
+            //if (item.Key == "CLT_border_TagBg_Hunter")
+            //    Debug.Log("UIBase 回收图片：" + item.Key + ":" + num);
+            ResourceManager.DestoryAssetsCounter(item.Key,num);
+            
+           
+        }
+        loadSpriteNames.Clear();
+    }
+    #endregion
+
     #region RawImageCamera
 
     List<UIModelShowTool.UIModelShowData> modelList = new List<UIModelShowTool.UIModelShowData>();
@@ -995,11 +1081,10 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
         Vector3? localScale = null,
         Vector3? eulerAngles = null ,
         Vector3? texSize = null,
-        bool isPutPool = false,
         float? nearClippingPlane = null,
         float? farClippingPlane = null)
     {
-        var model = CreateModelShow(modelName, layerName, orthographic, orthographicSize, backgroundColor, localPosition, localScale, eulerAngles, texSize, isPutPool, nearClippingPlane, farClippingPlane);
+        var model = CreateModelShow(modelName, layerName, orthographic, orthographicSize, backgroundColor, localPosition, localScale, eulerAngles, texSize, nearClippingPlane, farClippingPlane);
 
         GetRawImage(rawimageName).texture = model.renderTexture;
 
@@ -1025,11 +1110,10 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
         Vector3? localScale = null,
         Vector3? eulerAngles = null,
         Vector3? texSize = null,
-        bool isPutPool = false,
         float? nearClippingPlane = null,
         float? farClippingPlane = null)
     {
-        var model = UIModelShowTool.CreateModelData(modelName, layerName, orthographic, orthographicSize, backgroundColor, localPosition, eulerAngles, localScale, texSize, isPutPool, nearClippingPlane, farClippingPlane);
+        var model = UIModelShowTool.CreateModelData(modelName, layerName, orthographic, orthographicSize, backgroundColor, localPosition, eulerAngles, localScale, texSize, nearClippingPlane, farClippingPlane);
         modelList.Add(model);
 
         return model;
@@ -1115,7 +1199,7 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
         return obj;
     }
     /// <summary>
-    /// 新手引导获得动态创建Item  格式为：PetItem[0].Use（PetItem的Item上挂有UIBase脚本， [0] 第几个Item，Use：拖到PetItem上的GameObject）
+    /// 新手引导获得动态创建Item  格式为：PetItem[0].Use（PetItem的Item上挂有UIBase脚本， [0] 该名字的第几个Item，Use：拖到PetItem上的GameObject），当index小于0，则表示动态创建的列表List.Count-index(如-1：表示List.Count-1)
     /// </summary>
     /// <param name="itemName"></param>
     /// <returns></returns>
@@ -1136,41 +1220,71 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
             UIBase uIBase = null;
             firstName = strArr[0];
 
-
-            int index = int.Parse(firstName.SplitExtend("[", "]")[0]);
-            int tempIndex0 = firstName.IndexOf("[");
-            firstName = firstName.Replace(firstName.Substring(tempIndex0), "");
-            Debug.Log("UIBase : Index :" + index + "  firstName :" + firstName + " m_ChildList:"+ m_ChildList.Count);
-            int tempIndex = 0;
-            for (int i = 0; i < m_ChildList.Count; i++)
+            //寻找继承UIbase的变量
+            if (!firstName.Contains("["))
             {
-                UIBase cItem = m_ChildList[i];
-                Debug.Log("Item:" + cItem);
-                if (cItem.name == firstName)
-                {
-                    
-                    if (index == tempIndex)
-                    {
-                        uIBase = cItem;
-                        obj = uIBase.gameObject;
-                        break;
-                    }
-                    tempIndex++;
-                }
+                //FieldInfo fieldInfo = GetType().GetField(firstName, BindingFlags.Public|BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+              
+                // UIBase data=  (UIBase)fieldInfo.GetValue(this);
+                UIBase data= GetGameObject(firstName).GetComponent<UIBase>();
+                itemName = itemName.Replace(firstName + ".", "");
+                return data.GetGuideDynamicCreateItem(itemName);
             }
-
-            if (strArr.Length > 1)
+            else
             {
-                childName = strArr[1];
-                if (childName.Contains("["))
-                {
-                    childName = itemName.Replace(firstName + ".", "");
 
-                    obj = uIBase.GetGuideDynamicCreateItem(childName);
-                }
-                else
+                int index = int.Parse(firstName.SplitExtend("[", "]")[0]);
+                if (index < 0)
                 {
-                    obj= uIBase.GetGameObject(childName);
+                    index = m_ChildList.Count + index;
+                }
+                int tempIndex0 = firstName.IndexOf("[");
+                firstName = firstName.Replace(firstName.Substring(tempIndex0), "");
+                Debug.Log("UIBase : Index :" + index + "  firstName :" + firstName + " m_ChildList:" + m_ChildList.Count);
+                int tempIndex = 0;
+                for (int i = 0; i < m_ChildList.Count; i++)
+                {
+                    UIBase cItem = m_ChildList[i];
+                    Debug.Log("Item:" + cItem);
+                    if (cItem.name == firstName)
+                    {
+
+                        if (index == tempIndex)
+                        {
+                            uIBase = cItem;
+                            obj = uIBase.gameObject;
+                            break;
+                        }
+                        tempIndex++;
+                    }
+                }
+
+                if (strArr.Length > 1)
+                {
+                    childName = strArr[1];
+                    Debug.Log("childName:" + childName);
+                    if (childName.Contains("["))
+                    {
+                        childName = itemName.Replace(strArr[0] + ".", "");
+                        Debug.Log("childName:" + childName);
+                        obj = uIBase.GetGuideDynamicCreateItem(childName);
+                    }
+                    else
+                    {
+                        string afterNames = itemName.Replace(strArr[0] + ".", "");
+                        strArr = afterNames.Split('.');
+                        Debug.Log("afterNames :" + afterNames + "  UIBase:" + GetType().Name);
+                        for (int i = 0; i < strArr.Length; i++)
+                        {
+                            string findName = strArr[i];
+                            obj = uIBase.GetGameObject(findName);
+                            if (i < strArr[i].Length - 1)
+                            {
+                                uIBase = obj.GetComponent<UIBase>();
+                            }
+                        }
+
+                    }
                 }
             }
         }
@@ -1245,6 +1359,25 @@ public class UIBase : MonoBehaviour , UILifeCycleInterface
 
         m_GuideList.Clear();
         m_CreateCanvasDict.Clear();
+    }
+
+    #endregion
+
+    #region 动画管理
+
+    List<AnimData> animDataList = new List<AnimData>();
+
+    public void AddAnimData(AnimData animData)
+    {
+        animDataList.Add(animData);
+    }
+
+    public void CleanAnim()
+    {
+        for (int i = 0; i < animDataList.Count; i++)
+        {
+            AnimSystem.StopAnim(animDataList[i]);
+        }
     }
 
     #endregion

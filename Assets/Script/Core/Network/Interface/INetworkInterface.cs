@@ -3,12 +3,14 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Net;
 
 public abstract class INetworkInterface 
 {
     public MessageCallBack m_messageCallBack;
     public SocketBase m_socketService;
 
+    public MsgCompressBase msgCompress;
     public virtual void Init()
     {
     }
@@ -21,9 +23,9 @@ public abstract class INetworkInterface
         m_socketService = null;
     }
 
-    public virtual void GetIPAddress()
+    public virtual IPEndPoint GetIPAddress()
     {
-
+        return m_socketService.endPoint;
     }
 
     public virtual void SetIPAddress(string IP, int port)
